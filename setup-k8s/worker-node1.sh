@@ -1,12 +1,14 @@
 #!/bin/bash
 yum -y update
-yum remove firewalld
+yum remove -y firewalld
 yum -y install ntp nano net-tools wget curl mc iptables-services
 systemctl enable ntpd
 systemctl start ntpd
 
+mkdir -p $HOME/.kube
+mkdir /etc/cni
 hostnamectl set-hostname k8s-workernode1
-exec bash
+
 setenforce 0
 sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 
@@ -45,11 +47,13 @@ iptables -I INPUT -p tcp --dport 10250 -j ACCEPT
 iptables -I INPUT -p tcp --dport 10251 -j ACCEPT
 iptables -I INPUT -p tcp --dport 10252 -j ACCEPT
 iptables -I INPUT -p tcp --dport 10255 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10256 -j ACCEPT
 iptables -I INPUT -p tcp --dport 10248 -j ACCEPT
 iptables -I INPUT -p tcp --dport 2381 -j ACCEPT
 iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 iptables -I INPUT -p tcp --dport 443 -j ACCEPT
 iptables -I INPUT -p tcp --dport 8443 -j ACCEPT
+iptables -I INPUT -p tcp --dport 6784 -j ACCEPT
 /usr/libexec/iptables/iptables.init save
 
 yum -y install docker kubelet kubeadm kubectl kubernetes-cni
@@ -57,3 +61,8 @@ systemctl enable docker
 systemctl start docker
 systemctl enable kubelet
 systemctl start kubelet
+
+kubeadm config images pull
+cat <<EOF > /var/lib/kubelet/kubeadm-flags.env
+KUBELET_KUBEADM_ARGS="--network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.6 --cgroup-driver=cgroupfs"
+EOF
