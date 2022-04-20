@@ -31,6 +31,20 @@ ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 sshpass -p "root" ssh-copy-id -o StrictHostKeyChecking=no root@k8s-workernode1
 sshpass -p "root" ssh-copy-id -o StrictHostKeyChecking=no root@k8s-workernode2
 
+iptables -I INPUT -p tcp --dport 6443 -j ACCEPT
+iptables -I INPUT -p tcp --dport 2379 -j ACCEPT
+iptables -I INPUT -p tcp --dport 2380 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10250 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10251 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10252 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10255 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10248 -j ACCEPT
+iptables -I INPUT -p tcp --dport 2381 -j ACCEPT
+iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+iptables -I INPUT -p tcp --dport 8443 -j ACCEPT
+/usr/libexec/iptables/iptables.init save
+
 # Run this part on each server for Centos  ####################################
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
@@ -47,3 +61,5 @@ systemctl enable docker
 systemctl start docker
 systemctl enable kubelet
 systemctl start kubelet
+
+kubeadm config images pull

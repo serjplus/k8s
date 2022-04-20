@@ -38,6 +38,20 @@ repo_gpgcheck=0
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
+iptables -I INPUT -p tcp --dport 6443 -j ACCEPT
+iptables -I INPUT -p tcp --dport 2379 -j ACCEPT
+iptables -I INPUT -p tcp --dport 2380 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10250 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10251 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10252 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10255 -j ACCEPT
+iptables -I INPUT -p tcp --dport 10248 -j ACCEPT
+iptables -I INPUT -p tcp --dport 2381 -j ACCEPT
+iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+iptables -I INPUT -p tcp --dport 8443 -j ACCEPT
+/usr/libexec/iptables/iptables.init save
+
 yum -y install docker kubelet kubeadm kubectl kubernetes-cni
 systemctl enable docker
 systemctl start docker
