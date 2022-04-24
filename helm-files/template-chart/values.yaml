@@ -1,0 +1,6 @@
+# Default Values for my template Helm chart
+
+	container:
+	   image: nginx:latest
+
+	replicaCount: 3
